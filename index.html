@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message Folix</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #36393e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      width: 320px;
+      padding: 20px;
+      background-color: #2e3035;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffffff;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-weight: bold;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+      border: 1px solid #565a5f;
+      border-radius: 4px;
+      background-color: #41454a;
+      color: #ffffff;
+      font-size: 14px;
+      font-family: 'Roboto', Arial, sans-serif;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    button {
+      background-color: #4c00ff;
+      color: #ffffff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4c00ff;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .notification.error {
+      background-color: #F44336;
+    }
+
+    .notification.show {
+      opacity: 1;
+    }
+
+    .notification-icon {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+
+    .notification.success .notification-icon {
+      color: #4CAF50;
+    }
+
+    .notification.error .notification-icon {
+      color: #F44336;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Message Folix</h1>
+
+    <form id="webhookForm">
+      <label for="username">Discord Username:</label>
+      <input type="text" id="username" name="username" required placeholder="Enter your Discord username">
+
+      <label for="requestBody">Message:</label>
+      <textarea id="requestBody" name="requestBody" rows="4" required placeholder="Type your message here"></textarea>
+
+      <button type="button" onclick="sendWebhook()">Send Message</button>
+    </form>
+  </div>
+
+  <div class="notification" id="notification"></div>
+
+  <script>
+    function sendWebhook() {
+      var username = document.getElementById('username').value;
+      var requestBody = document.getElementById('requestBody').value;
+      var webhookUrl = 'https://discord.com/api/webhooks/1269769472793907302/pXY8woB9KHPpOZWwFXpj_cCSR2_wJWcnFd5GahaVWme33zpuD2C9S0H2tspjwJK3Ynm-';
+
+      if (!username || !requestBody) {
+        showNotification('error', 'Please fill out all fields.');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', webhookUrl, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 204) {
+            showNotification('success', 'Message sent successfully!');
+          } else {
+            showNotification('error', 'Failed to send message.');
+          }
+        }
+      };
+
+      var messageContent = 'Sent from: ' + username + '\nMessage: ' + requestBody;
+      xhr.send(JSON.stringify({ content: messageContent }));
+    }
+
+    function showNotification(type, message) {
+      var notificationElement = document.getElementById('notification');
+      notificationElement.innerHTML = '';
+
+      var iconClass = type === 'success' ? 'fa fa-check-circle' : 'fa fa-times-circle';
+      var iconColor = type === 'success' ? '#4CAF50' : '#F44336';
+
+      var iconElement = document.createElement('i');
+      iconElement.className = 'notification-icon ' + iconClass;
+      iconElement.style.color = iconColor;
+      notificationElement.appendChild(iconElement);
+
+      var messageElement = document.createElement('span');
+      messageElement.textContent = message;
+      notificationElement.appendChild(messageElement);
+
+      notificationElement.className = 'notification ' + type + ' show';
+
+      setTimeout(function () {
+        notificationElement.classList.remove('show');
+      }, 1500);
+    }
+  </script>
+
+</body>
+</html>
